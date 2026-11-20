@@ -1,0 +1,12 @@
+{
+  "name": "i-am-the-author",
+  "description": "Marketplace for the i-am-the-author plugin.",
+  "owner": { "name": "yujirot0627" },
+  "plugins": [
+    {
+      "name": "i-am-the-author",
+      "source": "./",
+      "description": "Stops Claude from listing itself as a co-author in commits and pull requests. The user is the only author."
+    }
+  ]
+}

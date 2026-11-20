@@ -1,23 +1,34 @@
 # i-am-the-author
 
-A Claude Code skill that stops Claude from listing itself as a co-author when it commits, pushes, or creates pull requests. The user is the only author.
+A Claude Code plugin (with one skill) that stops Claude from listing itself as a co-author when it commits, pushes, or creates pull requests. The user is the only author.
 
 The name `i-am-the-author` is a bit of humor: "I'm the author (not Claude)."
 
 ## What it does
 
-It is invoked right before a commit, push, or PR creation, and does the following automatically without asking:
+It works in two layers.
+
+### The setting: prevents the signature from being added
+
+The skill makes sure `~/.claude/settings.json` (on Windows, `%USERPROFILE%\.claude\settings.json`) has the following `attribution` setting. If it is missing, the skill adds it without breaking the existing content.
+
+```json
+{ "attribution": { "commit": "", "pr": "", "sessionUrl": false } }
+```
+
+With this setting, Claude Code stops adding its signature to new commits and pull requests: the `Co-Authored-By` trailer, the `Claude-Session` trailer, and the `🤖 Generated with [Claude Code]` text with its session URL. The setting takes effect from the next session. It does not change commits that already exist.
+
+### The skill: removes signatures that were already added
+
+The skill is invoked right before a commit, push, or PR creation, and does the following automatically without asking:
 
 1. Removes these lines from commit messages and PR bodies:
    - `Co-Authored-By:` lines whose email address is `noreply@anthropic.com` (case-insensitive)
    - `Claude-Session: ...` lines
    - `🤖 Generated with [Claude Code]...` lines and the session URL that follows
-2. Before a push, removes the same lines only from unpushed commits on the current branch (commits not reachable from any remote branch). Commits that have already been pushed are never rewritten. See [How unpushed commits are rewritten](#how-unpushed-commits-are-rewritten).
-3. If `~/.claude/settings.json` (on Windows, `%USERPROFILE%\.claude\settings.json`) does not have the following attribution settings, adds them without breaking the existing content:
+2. Before a push, finds unpushed commits on the current branch (commits not reachable from any remote branch) that already carry these lines, and removes the lines from their messages. Commits that have already been pushed are never rewritten. See [How unpushed commits are rewritten](#how-unpushed-commits-are-rewritten).
 
-   ```json
-   { "attribution": { "commit": "", "pr": "", "sessionUrl": false } }
-   ```
+This covers signatures the setting cannot prevent: commits made before the setting was added, or in the current session before it takes effect.
 
 Human co-authors are kept. A `Co-Authored-By:` line that only has `Claude` in the name is kept too, because it may be a human. For example, `Co-authored-by: Claude Martin <claude@example.com>` is kept, but `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` is removed.
 
@@ -39,27 +50,17 @@ If you have a Windows machine and can help test it, please get in touch or contr
 
 ## Installation
 
-Put this folder in a Claude Code skills directory.
+Run these two commands in Claude Code:
 
-```bash
-# macOS / Linux: to use it in all projects
-cp -R imtheauthor ~/.claude/skills/i-am-the-author
-
-# macOS / Linux: to use it in one project only
-cp -R imtheauthor <project>/.claude/skills/i-am-the-author
 ```
-
-```powershell
-# Windows (PowerShell): to use it in all projects
-Copy-Item -Recurse imtheauthor "$env:USERPROFILE\.claude\skills\i-am-the-author"
+/plugin marketplace add yujirot0627/i-am-the-author
+/plugin install i-am-the-author@i-am-the-author
 ```
 
 ## Usage
 
 After installation, just ask Claude to commit, push, or create a PR, and the skill is invoked automatically.
-To invoke it manually, type `/i-am-the-author`.
-
-The attribution settings take effect from the next session. Until then, the skill removes the lines every time.
+To invoke it manually, type `/i-am-the-author:i-am-the-author`.
 
 ## Requirements
 

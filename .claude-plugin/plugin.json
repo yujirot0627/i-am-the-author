@@ -1,0 +1,10 @@
+{
+  "name": "i-am-the-author",
+  "version": "1.0.0",
+  "description": "Stops Claude from listing itself as a co-author in commits and pull requests. The user is the only author.",
+  "author": { "name": "yujirot0627" },
+  "homepage": "https://github.com/yujirot0627/i-am-the-author",
+  "repository": "https://github.com/yujirot0627/i-am-the-author",
+  "license": "MIT",
+  "keywords": ["git", "commit", "pull-request", "attribution", "co-author"]
+}
